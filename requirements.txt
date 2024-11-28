@@ -1,2 +1,4 @@
 pymongo
 flask
+pymongo[srv]
+uuid
