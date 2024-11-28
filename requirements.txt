@@ -2,3 +2,4 @@ pymongo
 flask
 pymongo[srv]
 uuid
+gunicorn
