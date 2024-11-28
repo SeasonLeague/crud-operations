@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect 
+from flask import Flask, render_template, request, redirect
 from pymongo import MongoClient
-from bson.objectid import ObjectId 
+import uuid
 
 app = Flask(__name__)
 
@@ -16,14 +16,15 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_task():
     task = request.form['task']
-    collection.insert_one({"task": task})
+    task_id = str(uuid.uuid4())
+    collection.insert_one({"_id": task_id, "task": task})
     return redirect('/')
 
 @app.route('/edit/<task_id>', methods=["GET"])
 def edit_task(task_id):
     task = collection.find_one(
         {
-            "_id": ObjectId(task_id)
+            "_id": task_id
         }
     )
     return render_template("edit.html", task=task)
@@ -32,15 +33,12 @@ def edit_task(task_id):
 def update_task(task_id):
     new_task = request.form['task']
     collection.update_one(
-        {"_id": ObjectId(task_id)},
+        {"_id": task_id},
         {"$set": {"task": new_task}}
     )
     return redirect('/')
 
 @app.route('/delete/<task_id>', methods=['GET'])
 def delete_task(task_id):
-    collection.delete_one({"_id": ObjectId(task_id)})
+    collection.delete_one({"_id": task_id})
     return redirect('/')
-
-if __name__ == '__main__':
-    app.run(debug=True)
